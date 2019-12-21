@@ -20,9 +20,11 @@ def search(shag):
 	#print(count)
 	for i in range(start, end+1):
 		index = index + (count[chr(i)] * (count[chr(i)] - 1))/(dlina * (dlina - 1))
-	if index >= 0.0553:
-		print ('index: ', index, '\nshag: ', shag, '\n')
-		return shag
+	print (index)
+	#if index >= 0.0553:
+		#print ('index: ', index, '\nshag: ', shag, '\n')
+		#return shag
+
 
 def find_key(i, a, O):
 	b = ''
@@ -62,7 +64,7 @@ def full_decode(meme, a):
 					h = c + 32
 				else:
 					h = c
-				print ('First: ', value-1072, ' Key elem: ', meme[check], ' Second: ', h-1072)
+				#print ('First: ', value-1072, ' Key elem: ', meme[check], ' Second: ', h-1072)
 				list_code = list_code + chr(h)
 				check = check + 1
 	print (list_code)
@@ -72,7 +74,7 @@ def decrypt():
 	key = ''
 	meme = []
 	a = 0
-	for i in range (2, 25):			# 					Поиск длины ключа
+	for i in range (2, 35):			# 					Поиск длины ключа
 		a = search(i)
 		if a == i:
 			break					#					a = длина ключа (17)
@@ -89,7 +91,7 @@ def decrypt():
 
 
 text = codecs.open("mem.txt", 'r', 'utf-8').read()   #	text = наш текст
-print(text)
+#print(text)
 decrypt()
 huy = ''
 
