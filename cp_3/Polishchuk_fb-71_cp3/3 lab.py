@@ -86,8 +86,8 @@ def formula():
 		for j in range (0, 5):
 			for u in range (0, 5):
 				for y in range (0, 5):
-					a = (morenum1[i] - morenum1[u] * inverse(morenum0[j]-morenum0[y], 961))%961
-					b = (morenum1[i] - (a * morenum0[i]))%961
+					a = (-(morenum1[j] - morenum1[y]) * inverse(morenum0[i]-morenum0[u], 961))%961
+					b = (morenum1[j] - (a * morenum0[i]))%961
 					mema.insert(k, a)
 					memb.insert(k, b)
 			k = k+1
@@ -98,7 +98,7 @@ def decrypt():
 	for i in range (0, len(a)):
 		check = 0
 		textnew = ''
-		baddd = ['аы' ,'оы', 'еы', 'уы', 'оы', 'аь', 'оь', 'еь', 'иь', 'уь', 'ъщ', 'фд', 'ъв']
+		baddd = ['аы' ,'оы', 'еы', 'уы', 'оы', 'аь', 'оь', 'еь', 'иь', 'уь', 'ъщ', 'фд', 'ъв', 'аа']
 		for j in range (0, len(nubmers)):
 			if check == 1:
 				break
@@ -108,7 +108,7 @@ def decrypt():
 			x1 = x1 + 1072
 			x2 = x2 + 1072
 			textnew = textnew + chr(int(x1)) + chr(int(x2))
-			for k in range(0, 10):
+			for k in range(0, 14):
 				if chr(int(x1)) + chr(int(x2)) == baddd[k]:
 					ploho = chr(int(x1)) + chr(int(x2))
 					check = 1
