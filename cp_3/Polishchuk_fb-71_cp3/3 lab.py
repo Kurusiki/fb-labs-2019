@@ -1,134 +1,130 @@
 import re
-import math
 import codecs
 import string 
 from collections import Counter
-from collections import deque
-
-a = ord('а')
-b = ord ('я')
 
 alphab = ['а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о',' п', 'р', 'с', 'т', 'у', 'ф',' х', 'ц', 'ч', 'ш', 'щ', 'ы', 'ь', 'э', 'ю', 'я']
 
 def find_text():
-    meh = ''
-    nubmers = []
+    text0 = ''
+    decardline = []
     k = 0
-    textW = re.findall(r'[а-я\n]', codecs.open ("text.txt", 'r', 'utf-8').read())
-    for i in range(0, len(textW)):
-        meh = meh + textW[i]
-    #print(meh)
-    textW = meh.replace('\n', '')
-    for i in range(1, len(textW)):
-        #meh = meh + textW[i]
-        if i%2 != 0 :
-        	#print ('literal a :', textW[i-1], ' literal b: ', textW[i], '\nOrd a: ', ord(textW[i-1])% 1072, ' Ord b: ', ord(textW[i])% 1072 )
-        	oh = ((ord(textW[i-1]) - 1072) * 31) + (ord(textW[i]) - 1072)
-        	nubmers.insert(k, oh)
-        	k = k + 1
-    #print(nubmers)
-    return textW, nubmers
+
+    text = re.findall(r'[а-я\n]', codecs.open ("text.txt", 'r', 'utf-8').read())        #Открытие файла
+    for i in range(0, len(text)):                                                     
+        text0 = text0 + text[i]                                                         #Запись в list meh
+
+
+    text = text0.replace('\n', '')                                                      #Удаление символа конца строки
+    for i in range(1, len(text)):
+        if i%2 != 0 :                                                                   #Выбираем биграммы
+            for j in range (0, 31):
+                if text[i-1] == alphab[j]:                                              #Находим числовое соответствие а
+                    a = j
+                if text[i] == alphab[j]:                                                #Находим числовое соответствие b
+                    b = j
+            decardline.insert(k, (a * 31) + b)                                          #Считаем "значение" биграммы
+            k = k + 1                                                                   #Увеличиваем порядок номера записи элементов
+    return text, decardline
+
 
 def bigrams(ourtext):
-	meme1 = ''
-	#some = [0, 0, 0, 0, 0]
-	a = 100
-	mem = ['','','','','']
-	innum = []
-	meme1 = re.findall(r'[а-я][а-я]', ourtext)
-	#сount = Counter(meme1)
-	#d = deque(some, len(сount))
-	#print(сount)
-	for i in range(0, 5):
-		if i < 5:
-			a, mem[i], num = the_best(a, meme1, mem)
-			innum.insert(i, num)
-			print (a)
-	huy = Counter(meme1)
-	print(mem)
-	print(huy)
-	return(innum)
+    newtext = ''
+    a = 100
+    ourСommon = ['', '', '', '', '']
+    innum = []
 
-def the_best(best, meme1, some):
-	c = 0
-	bigrama = ''
-	сount = Counter(meme1)
-	for	i in range (a, b+1):
-		for	j in range (a, b+1):
-			if сount[chr(i)+chr(j)] > c and сount[chr(i)+chr(j)] <= best:
-				if chr(i)+chr(j) != some[0] and chr(i)+chr(j) != some[1] and chr(i)+chr(j) != some[2] and chr(i)+chr(j) != some[3] and chr(i)+chr(j) != some[4]:
-					c = сount[chr(i)+chr(j)]
-					bigrama = chr(i)+chr(j)
-					innum = ((i - 1072) * 31) + (j - 1072)
-						#print (chr(i)+chr(j))
+    newtext = re.findall(r'[а-я][а-я]', ourtext)                                        #Поиск биграмм
 
-	return(c, bigrama, innum)
+    count = Counter(newtext)
+    print('Количество повторения всех биграмм: \n', count)    
 
-def egcd(a, b):
+    for i in range(0, 5):
+        if i < 5:
+            a, ourСommon[i], num = the_best(a, newtext, ourСommon)
+            innum.insert(i, num)
+    print('\nСамые частые биграммы ШифроТекста: ' , ourСommon)
+    print('Их числовые соответствия: ', innum)
+    return(innum)
+
+
+def the_best(best, ourtext, some):
+    c = 0
+    bigrama = ''
+    сount = Counter(ourtext)
+    for i in range (0, 31):
+        for j in range (0, 31):                                                        #Перебор всех Биграмм для определения самых частых
+            if сount[alphab[i] + alphab[j]] > c and сount[alphab[i] + alphab[j]] <= best:
+                if alphab[i] + alphab[j] != some[0] and alphab[i] + alphab[j] != some[1] and alphab[i] + alphab[j] != some[2] and alphab[i] + alphab[j]!= some[3] and alphab[i] + alphab[j] != some[4]:
+                    c = сount[alphab[i] + alphab[j]]
+                    bigrama = alphab[i] + alphab[j]
+                    innum = (i * 31) + j  
+    return(c, bigrama, innum)
+
+
+def egcd(a, b):                                             #Поиск обратного
     if a == 0:
         return b, 0, 1
     else:
         gcd, x, y = egcd(b % a, a)
         return gcd, y - (b//a) * x, x
 
-def inverse(a, m):
+def inverse(a, m):                                         #Поиск обратного
     g, x, y = egcd(a, m)
     if g > 1:
         return x % (m/g)
     else:
         return x % m
 
-def formula():
-	mema = []
-	memb = []
-	k = 0
-	for i in range (0, 5):
-		for j in range (0, 5):
-			for u in range (0, 5):
-				for y in range (0, 5):
-					a = (-(morenum1[j] - morenum1[y]) * inverse(morenum0[i]-morenum0[u], 961))%961
-					b = (morenum1[j] - (a * morenum0[i]))%961
-					mema.insert(k, a)
-					memb.insert(k, b)
-			k = k+1
-	#print(mema, '\n', memb)
-	return mema, memb
-			
-def decrypt():
-	for i in range (0, len(a)):
-		check = 0
-		textnew = ''
-		baddd = ['аы' ,'оы', 'еы', 'уы', 'оы', 'аь', 'оь', 'еь', 'иь', 'уь', 'ъщ', 'фд', 'ъв', 'аа']
-		for j in range (0, len(nubmers)):
-			if check == 1:
-				break
-			x = ((nubmers[j] - b[i]) * inverse(a[i], 961))%961
-			x1 = int(x / 31)
-			x2 = x - (31*x1)
-			x1 = x1 + 1072
-			x2 = x2 + 1072
-			textnew = textnew + chr(int(x1)) + chr(int(x2))
-			for k in range(0, 14):
-				if chr(int(x1)) + chr(int(x2)) == baddd[k]:
-					ploho = chr(int(x1)) + chr(int(x2))
-					check = 1
-		if check == 0:
-			print('Text ', i, ': \n', textnew, '\n\n\n\n\n\n')
-		else:
-			print ('Not text №', i, ' beacouse have: ', ploho, 'a: ', a[i], ' b: ', b[i]) 
+def formula(top, ourtop):									#Поиск возможных ключей (a и b)
+    A = []
+    B = []
+    k = 0
+
+    for i in range (0, 5):									#Перебор пар Х*
+        for j in range (0, 5):								#Перебор пар Y*
+            for u in range (0, 5):							#Перебор пар Х**
+                for y in range (0, 5):						#Перебор пар Y**
+                    a = ((top[j] - top[y]) * inverse(ourtop[i]-ourtop[u], 961))%961	#а = ((Y* - Y**) * inverse(X* - X**, 961)) % 961
+                    b = (top[j] - (a * ourtop[i]))%961								#b = (Y* - (a * X*)) % 961
+                    if a != 0.0:
+                        A.insert(k, int(a))							#Записываем а
+                        B.insert(k, int(b))							#Записываем b
+                        k = k+1										#Увеличиваем порядок номера записи элементов
+    print('Все наши а: \n', A, '\nВсе наши b: \n', B)
+    return A, B
 
 
+def decrypt(a, b, ST):
+    baddd = ['аы' ,'оы', 'еы', 'уы', 'оы', 'аь', 'оь', 'еь', 'иь', 'уь']		#Запрещенные биграммы
 
-text, nubmers = find_text()
-#print(nubmers)
-most_frequent = ['ст', 'но', 'то', 'на', 'ен']
-#print((ord('е') - 1072) * 32+ (ord('н') - 1072))
-morenum1 = [562, 430, 590, 416, 173]
-morenum0 = bigrams(text)
-print (morenum1, '\n', morenum0)
-#print (morenum0)
-a, b = formula()
-#print (a,'\n', b)
-think = ''
-#print('lennn: ', len(textnew), '\n', 'text ', i, ': \n', textnew, '\n\n\n\n\n\n')	
-decrypt()
+    for i in range (0, len(a)):													#Перебор всех ключей
+
+        check = 0
+        textnew = ''
+
+        for j in range (0, len(ST)):											#Перебор всех биграмм в циврофом виде
+            if check == 1:
+                break
+            x = ((ST[j] - b[i]) * inverse(a[i], 961))%961	#X = ((Z - b) * inverse(a, 961)) % 961  
+            x1 = int(x/31)									#x1 = X/31
+            if x1 != 0:							
+                x2 = int(x % (31 * x1))						#x2(x%(31 * x1))
+                textnew = textnew + alphab[x1] + alphab[x2] #Запись расшифрованных биграмм
+                for k in range(0, 10):						
+                    if alphab[x1] + alphab[x2] == baddd[k]:	#Проверка на подлинность биграммы
+                        ploho = alphab[x1] + alphab[x2]
+                        check = 1							#Идентификатор "плохого" текста
+        if check == 0:
+            print('Text ', i, ': \n', textnew, '\n')
+        else:
+            print ('Not text №', i, ' beacouse have: ', ploho, 'a: ', a[i], ' b: ', b[i]) 
+          
+
+
+text, decardline = find_text()
+#print(decardline)
+common = [545, 417, 572, 403, 168]
+ourСommon = bigrams(text)
+A, B = formula(common, ourСommon)
+decrypt(A, B, decardline)
