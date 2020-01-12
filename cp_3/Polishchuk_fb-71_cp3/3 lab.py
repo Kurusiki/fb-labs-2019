@@ -2,6 +2,7 @@ import re
 import codecs
 import string 
 from collections import Counter
+from fractions import gcd
 
 alphab = ['а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о',' п', 'р', 'с', 'т', 'у', 'ф',' х', 'ц', 'ч', 'ш', 'щ', 'ы', 'ь', 'э', 'ю', 'я']
 
@@ -106,25 +107,46 @@ def decrypt(a, b, ST):
         for j in range (0, len(ST)):											#Перебор всех биграмм в циврофом виде
             if check == 1:
                 break
-            x = ((ST[j] - b[i]) * inverse(a[i], 961))%961	#X = ((Z - b) * inverse(a, 961)) % 961  
-            x1 = int(x/31)									#x1 = X/31
-            if x1 != 0:							
-                x2 = int(x % (31 * x1))						#x2(x%(31 * x1))
-                textnew = textnew + alphab[x1] + alphab[x2] #Запись расшифрованных биграмм
+            d = gcd(a,961)   
+            if d == 1:															#Проверка существования решения 
+            	x = ((ST[j] - b[i]) * inverse(a[i], 961))%961					#X = ((Z - b) * inverse(a, 961)) % 961 
+            	x1, x2 = XxX(x)
+                textnew = textnew + alphab[x1] + alphab[x2]						#Запись расшифрованных биграмм            	
+        	else:
+        		if (b % d) !=0:													
+        			check = 1		
+            	else:															#Если b % d == 0 												
+            		a1 = a[i] / d 												
+            		b1 = b[i] / d
+            		n1 = 961 / d
+					xs = ((ST[j] - b1) * inverse(a1, 961))
+					for k in range(0 , d):
+						x = (xs*i)%961
+						x1, x2 = XxX(x)
+						textnew = textnew + alphab[x1] + alphab[x2]
                 for k in range(0, 10):						
-                    if alphab[x1] + alphab[x2] == baddd[k]:	#Проверка на подлинность биграммы
+                    if alphab[x1] + alphab[x2] == baddd[k]:						#Проверка на подлинность биграммы
                         ploho = alphab[x1] + alphab[x2]
-                        check = 1							#Идентификатор "плохого" текста
+                        check = 1												#Идентификатор "плохого" текста
         if check == 0:
             print('Text ', i, ': \n', textnew, '\n')
         else:
-            print ('Not text №', i, ' beacouse have: ', ploho, 'a: ', a[i], ' b: ', b[i]) 
+            print ('Not text №', i, ' because have: ', ploho, 'a: ', a[i], ' b: ', b[i]) 
+
+def XxX(x):
+	x1 = int(x//31)									#x1 = X/31
+    if x1 != 0:							
+        x2 = int(x % (31 * x1))						#x2(x%(31 * x1))
+	return x1, x2
+
           
 
 
 text, decardline = find_text()
+#print(text)
 #print(decardline)
 common = [545, 417, 572, 403, 168]
 ourСommon = bigrams(text)
+print('Самые частые биграммы русского языка в числовом виде: ', common)
 A, B = formula(common, ourСommon)
 decrypt(A, B, decardline)
