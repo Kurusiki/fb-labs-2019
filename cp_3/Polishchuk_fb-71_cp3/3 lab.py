@@ -97,7 +97,6 @@ def formula(top, ourtop):									#Поиск возможных ключей (a
 
 
 def decrypt(a, b, ST):
-    baddd = ['аы' ,'оы', 'еы', 'уы', 'оы', 'аь', 'оь', 'еь', 'иь', 'уь']		#Запрещенные биграммы
 
     for i in range (0, len(a)):													#Перебор всех ключей
 
@@ -107,37 +106,51 @@ def decrypt(a, b, ST):
         for j in range (0, len(ST)):											#Перебор всех биграмм в циврофом виде
             if check == 1:
                 break
-            d = gcd(a,961)   
-            if d == 1:															#Проверка существования решения 
-            	x = ((ST[j] - b[i]) * inverse(a[i], 961))%961					#X = ((Z - b) * inverse(a, 961)) % 961 
-            	x1, x2 = XxX(x)
-                textnew = textnew + alphab[x1] + alphab[x2]						#Запись расшифрованных биграмм            	
-        	else:
-        		if (b % d) !=0:													
-        			check = 1		
-            	else:															#Если b % d == 0 												
-            		a1 = a[i] / d 												
-            		b1 = b[i] / d
-            		n1 = 961 / d
-					xs = ((ST[j] - b1) * inverse(a1, 961))
-					for k in range(0 , d):
-						x = (xs*i)%961
-						x1, x2 = XxX(x)
-						textnew = textnew + alphab[x1] + alphab[x2]
-                for k in range(0, 10):						
-                    if alphab[x1] + alphab[x2] == baddd[k]:						#Проверка на подлинность биграммы
-                        ploho = alphab[x1] + alphab[x2]
-                        check = 1												#Идентификатор "плохого" текста
+            else:
+                check, textnew = linear(ST[j], a[i], b[i], textnew)
+
+            if check == 0:
+                print('Text ', i, ': \n', textnew, '\n')                
+            else:
+                if x1 != 77 and x2 != 77:
+                    print ('Not text №', i, ' because have: ', ploho, 'a: ', a[i], ' b: ', b[i]) 
+
+def linear(ST, a, b, textnew):
+    check = 0
+    d = gcd(a,961)   
+    if d == 1:                                                          #Проверка существования решения 
+        x = ((ST[j] - b[i]) * inverse(a[i], 961))%961                   #X = ((Z - b) * inverse(a, 961)) % 961 
+        x1, x2, check = XxX(x)
         if check == 0:
-            print('Text ', i, ': \n', textnew, '\n')
-        else:
-            print ('Not text №', i, ' because have: ', ploho, 'a: ', a[i], ' b: ', b[i]) 
+            textnew = textnew + alphab[x1] + alphab[x2]                     #Запись расшифрованных биграмм     
+
+    else:
+        if (b % d) !=0:                                               
+            return 1, textnew    
+        else:                                                           #Если b % d == 0                                                
+            a1 = a[i] / d                                               
+            b1 = b[i] / d
+            n1 = 961 / d
+            xs = ((ST[j] - b1) * inverse(a1, 961))
+            for k in range(0 , d):
+                x = (xs*i)%961
+                x1, x2 = XxX(x)
+                if check == 0:
+                    textnew = textnew + alphab[x1] + alphab[x2]                     #Запись расшифрованных биграмм    
+    return check, textnew
 
 def XxX(x):
+    baddd = ['аы' ,'оы', 'еы', 'уы', 'оы', 'аь', 'оь', 'еь', 'иь', 'уь']        #Запрещенные биграммы
+    check = 0
 	x1 = int(x//31)									#x1 = X/31
     if x1 != 0:							
         x2 = int(x % (31 * x1))						#x2(x%(31 * x1))
-	return x1, x2
+        for k in range(0, 10):                      
+            if alphab[x1] + alphab[x2] == baddd[k]:                     #Проверка на подлинность биграммы
+                ploho = alphab[x1] + alphab[x2]
+                check = 1                                               #Идентификатор "плохого" текста
+	return x1, x2, check
+
 
           
 
